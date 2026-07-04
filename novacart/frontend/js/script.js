@@ -4,10 +4,10 @@
    Backend base URL can be changed once Spring Boot is running.
    =========================================================== */
 
-const API_BASE = window.location.hostname === "localhost"
+const API_BASE =
+  window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
     ? "http://localhost:8080/api"
     : "https://novacart-moz6.onrender.com/api";
-
 /* ---------- DEMO PRODUCT DATA (fallback if backend is offline) ---------- */
 /* In production these come from GET /api/products (MySQL via JdbcTemplate) */
 const DEMO_PRODUCTS = [
@@ -167,16 +167,16 @@ function productCardHTML(p){
         <i class="fa-${wished ? 'solid' : 'regular'} fa-heart"></i>
       </button>
       <a href="product-details.html?id=${p.id}">
-        <img src="${p.image}" alt="${p.name}">
+        <img src="${p.image || p.imageUrl}" alt="${p.name}">
       </a>
     </div>
 
     <div class="product-info">
-      <div class="product-cat">${p.category}</div>
+     <div class="product-cat">${p.category || p.categoryName}</div>
       <a href="product-details.html?id=${p.id}">
         <h4 class="product-name">${p.name}</h4>
       </a>
-      <div class="product-rating">${renderStars(p.rating)} <span>(${p.reviews})</span></div>
+     <div class="product-rating">${renderStars(p.rating)} <span>(${p.reviews || p.reviewsCount || 0})</span></div>
 
       <div class="product-price-row">
         <div class="price">
