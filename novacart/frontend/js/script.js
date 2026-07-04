@@ -4,7 +4,9 @@
    Backend base URL can be changed once Spring Boot is running.
    =========================================================== */
 
-const API_BASE = "http://localhost:8080/api";
+const API_BASE = window.location.hostname === "localhost"
+    ? "http://localhost:8080/api"
+    : "https://novacart-moz6.onrender.com/api";
 
 /* ---------- DEMO PRODUCT DATA (fallback if backend is offline) ---------- */
 /* In production these come from GET /api/products (MySQL via JdbcTemplate) */
