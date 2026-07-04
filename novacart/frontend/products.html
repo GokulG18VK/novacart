@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shop All Products | NovaCart</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container nav-inner">
+    <a href="index.html" class="logo">Nova<span>Cart</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Shop</a></li>
+      <li><a href="wishlist.html">Wishlist</a></li>
+      <li><a href="orders.html">My Orders</a></li>
+      <li><a href="admin.html">Admin</a></li>
+    </ul>
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search for products...">
+      <button onclick="applyFilters()"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+    <div class="nav-icons">
+      <a href="wishlist.html" class="icon-btn"><i class="fa-regular fa-heart"></i><span class="badge" id="wishlist-count">0</span></a>
+      <a href="cart.html" class="icon-btn"><i class="fa-solid fa-bag-shopping"></i><span class="badge" id="cart-count">0</span></a>
+      <a href="login.html" class="icon-btn" id="nav-login"><i class="fa-regular fa-user"></i></a>
+    </div>
+    <button class="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+  </div>
+</nav>
+<div class="drawer-overlay"></div>
+<div class="mobile-drawer">
+  <a href="index.html">Home</a>
+  <a href="products.html">Shop</a>
+  <a href="wishlist.html">Wishlist</a>
+  <a href="orders.html">My Orders</a>
+  <a href="cart.html">Cart</a>
+  <a href="login.html">Login</a>
+  <a href="admin.html">Admin</a>
+</div>
+
+<div class="page-header">
+  <h1>Shop All Products</h1>
+  <div class="breadcrumb"><a href="index.html">Home</a> / Shop</div>
+</div>
+
+<div class="container shop-layout">
+  <!-- FILTERS SIDEBAR -->
+  <aside class="filters glass">
+    <h3><i class="fa-solid fa-sliders"></i> Filters</h3>
+    <div class="filter-group">
+      <h4>Category</h4>
+      <div id="categoryFilters"></div>
+    </div>
+    <div class="filter-group">
+      <h4>Price Range (₹0 - ₹50,000)</h4>
+      <input type="range" min="0" max="50000" step="500" value="50000" class="price-range" id="priceRange" oninput="document.getElementById('priceVal').innerText=this.value">
+      <p style="margin-top:8px;color:var(--gold);font-size:.85rem;">Up to ₹<span id="priceVal">50000</span></p>
+    </div>
+    <div class="filter-group">
+      <h4>Minimum Rating</h4>
+      <label><input type="radio" name="rating" value="0" checked> All Ratings</label>
+      <label><input type="radio" name="rating" value="4"> 4★ & above</label>
+      <label><input type="radio" name="rating" value="4.5"> 4.5★ & above</label>
+    </div>
+    <button class="gradient-btn" style="width:100%;" onclick="applyFilters()">Apply Filters</button>
+    <button class="outline-btn" style="width:100%;margin-top:10px;" onclick="resetFilters()">Reset</button>
+  </aside>
+
+  <!-- PRODUCTS -->
+  <div>
+    <div class="toolbar">
+      <p class="result-count" id="resultCount">Showing all products</p>
+      <select id="sortSelect" onchange="applyFilters()">
+        <option value="default">Sort: Featured</option>
+        <option value="priceLow">Price: Low to High</option>
+        <option value="priceHigh">Price: High to Low</option>
+        <option value="rating">Highest Rated</option>
+      </select>
+    </div>
+    <div class="product-grid" id="productGrid"></div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-bottom container">&copy; 2026 NovaCart. All rights reserved.</div>
+</footer>
+
+<script src="js/script.js"></script>
+<script>
+let activeCategories = new Set();
+let ALL_PRODUCTS = [];
+
+function fixProduct(p){
+  return {
+    ...p,
+    image: p.image || p.imageUrl || p.image_url,
+    category: p.category || p.categoryName,
+    reviews: p.reviews || p.reviewsCount || 0,
+    rating: p.rating || 4.5,
+    oldPrice: p.oldPrice || null
+  };
+}
+
+function buildCategoryFilters(){
+  const wrap = document.getElementById("categoryFilters");
+  wrap.innerHTML = CATEGORIES.map(c => `
+    <label><input type="checkbox" value="${c.name}" onchange="toggleCategory(this)"> ${c.name}</label>
+  `).join("");
+}
+
+function toggleCategory(cb){
+  if (cb.checked) activeCategories.add(cb.value);
+  else activeCategories.delete(cb.value);
+}
+
+function getQueryParam(name){
+  return new URLSearchParams(window.location.search).get(name);
+}
+
+function applyFilters(){
+  let products = [...ALL_PRODUCTS];
+
+  const search = document.getElementById("searchInput").value.trim().toLowerCase();
+  const maxPrice = Number(document.getElementById("priceRange").value);
+  const minRating = Number(document.querySelector('input[name="rating"]:checked').value);
+  const sort = document.getElementById("sortSelect").value;
+
+  if (search) products = products.filter(p => p.name.toLowerCase().includes(search));
+  if (activeCategories.size > 0) products = products.filter(p => activeCategories.has(p.category));
+  products = products.filter(p => p.price <= maxPrice && p.rating >= minRating);
+
+  if (sort === "priceLow") products.sort((a,b)=>a.price-b.price);
+  if (sort === "priceHigh") products.sort((a,b)=>b.price-a.price);
+  if (sort === "rating") products.sort((a,b)=>b.rating-a.rating);
+
+  document.getElementById("productGrid").innerHTML = products.length
+    ? products.map(productCardHTML).join("")
+    : `<div class="empty-state"><i class="fa-solid fa-box-open"></i><h3>No products found</h3></div>`;
+
+  document.getElementById("resultCount").innerText =
+    `Showing ${products.length} of ${ALL_PRODUCTS.length} products`;
+}
+
+function resetFilters(){
+  activeCategories.clear();
+  document.querySelectorAll('#categoryFilters input').forEach(cb=>cb.checked=false);
+  document.getElementById("priceRange").value = 50000;
+  document.getElementById("priceVal").innerText = 50000;
+  document.querySelector('input[name="rating"][value="0"]').checked = true;
+  document.getElementById("searchInput").value = "";
+  document.getElementById("sortSelect").value = "default";
+  applyFilters();
+}
+
+async function initProductsPage(){
+  buildCategoryFilters();
+
+  ALL_PRODUCTS = (await apiGet("/products", [])).map(fixProduct);
+
+  const urlCategory = getQueryParam("category");
+  const urlSearch = getQueryParam("search");
+
+  if (urlCategory){
+    activeCategories.add(urlCategory);
+    document.querySelectorAll('#categoryFilters input').forEach(cb=>{
+      if(cb.value === urlCategory) cb.checked = true;
+    });
+  }
+
+  if (urlSearch) document.getElementById("searchInput").value = urlSearch;
+
+  applyFilters();
+}
+
+initProductsPage();
+</script>
+</body>
+</html>

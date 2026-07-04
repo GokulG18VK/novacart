@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard | NovaCart</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<div class="admin-layout">
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar">
+    <a href="index.html" class="logo">Nova<span>Cart</span></a>
+    <nav class="admin-nav">
+      <a href="#" class="active" onclick="showSection('dashboard', event)"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+      <a href="#" onclick="showSection('products', event)"><i class="fa-solid fa-box"></i> Products</a>
+      <a href="#" onclick="showSection('orders', event)"><i class="fa-solid fa-receipt"></i> Orders</a>
+      <a href="#" onclick="showSection('users', event)"><i class="fa-solid fa-users"></i> Users</a>
+      <a href="index.html"><i class="fa-solid fa-arrow-left"></i> Back to Store</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="admin-main">
+    <div class="admin-header">
+  <h2 id="sectionTitle">Admin Dashboard</h2>
+
+  <button id="addProductBtn"
+          class="gradient-btn"
+          onclick="openProductModal()">
+    <i class="fa-solid fa-plus"></i> Add Product
+  </button>
+</div>
+
+    <!-- DASHBOARD -->
+    <section id="section-dashboard" class="admin-section active">
+      <div class="stat-cards">
+        <div class="stat-card glass"><div class="icon"><i class="fa-solid fa-box"></i></div><div><h3 id="statProducts">0</h3><p>Total Products</p></div></div>
+        <div class="stat-card glass"><div class="icon"><i class="fa-solid fa-receipt"></i></div><div><h3 id="statOrders">0</h3><p>Total Orders</p></div></div>
+        <div class="stat-card glass"><div class="icon"><i class="fa-solid fa-users"></i></div><div><h3 id="statUsers">0</h3><p>Total Users</p></div></div>
+        <div class="stat-card glass"><div class="icon"><i class="fa-solid fa-indian-rupee-sign"></i></div><div><h3 id="statRevenue">₹0</h3><p>Total Revenue</p></div></div>
+      </div>
+      <div class="admin-table-wrap glass">
+        <h3 style="color:var(--gold);margin-bottom:16px;">Recent Orders</h3>
+        <table>
+          <thead><tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead>
+          <tbody id="recentOrdersBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section id="section-products" class="admin-section">
+      <div class="admin-table-wrap glass">
+        <table>
+          <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Rating</th><th>Actions</th></tr></thead>
+          <tbody id="productsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ORDERS -->
+    <section id="section-orders" class="admin-section">
+      <div class="admin-table-wrap glass">
+        <table>
+          <thead><tr><th>Order ID</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th><th>Update</th></tr></thead>
+          <tbody id="adminOrdersBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- USERS -->
+    <section id="section-users" class="admin-section">
+      <div class="admin-table-wrap glass">
+        <table>
+          <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th><th>Actions</th></tr></thead>
+          <tbody id="usersBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal-box glass" style="position:relative;">
+    <span class="modal-close" onclick="closeProductModal()"><i class="fa-solid fa-xmark"></i></span>
+    <h3 id="modalTitle">Add Product</h3>
+    <form id="productForm">
+      <input type="hidden" id="prodId">
+      <div class="form-group"><label>Product Name</label><input type="text" id="prodName" required></div>
+      <div class="form-group">
+        <label>Category</label>
+        <select id="prodCategory" required></select>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Price (₹)</label><input type="number" id="prodPrice" required></div>
+        <div class="form-group"><label>Old Price (₹)</label><input type="number" id="prodOldPrice"></div>
+      </div>
+        <div class="form-group">
+        <label>Rating</label>
+        <input type="number" id="prodRating" step="0.1" min="1" max="5" placeholder="4.5">
+     </div>
+      <div class="form-group"><label>Image URL</label><input type="text" id="prodImage" placeholder="https://..." required></div>
+      <button type="submit" class="gradient-btn" style="width:100%;">Save Product</button>
+    </form>
+  </div>
+</div>
+
+<script src="js/script.js"></script>
+<script>
+  let adminProducts = [];
+  let adminCategories = [...CATEGORIES];
+  let adminUsers = [
+    {id:1, name:"Aarav Mehta", email:"aarav@example.com", phone:"9876543210", joined:"2026-01-12"},
+    {id:2, name:"Priya Sharma", email:"priya@example.com", phone:"9123456780", joined:"2026-02-04"},
+    {id:3, name:"Rohan Gupta", email:"rohan@example.com", phone:"9988776655", joined:"2026-03-19"},
+  ];
+  let adminOrders = JSON.parse(localStorage.getItem("novacart_orders") || "[]");
+  if (adminOrders.length === 0){
+    adminOrders = [
+      {id:"NC10293", date:new Date().toISOString(), items:[{name:"Sample"}], total:7999, status:"Delivered", customer:"Aarav Mehta"},
+      {id:"NC10294", date:new Date().toISOString(), items:[{name:"Sample"}], total:2599, status:"Shipped", customer:"Priya Sharma"},
+      {id:"NC10295", date:new Date().toISOString(), items:[{name:"Sample"}], total:12999, status:"Pending", customer:"Rohan Gupta"},
+    ];
+  }
+
+  function showSection(section, event){
+
+    document.querySelectorAll(".admin-section").forEach(s =>
+        s.classList.remove("active")
+    );
+
+    document.getElementById(`section-${section}`).classList.add("active");
+
+    document.querySelectorAll(".admin-nav a").forEach(a =>
+        a.classList.remove("active")
+    );
+
+    if (event) {
+        event.target.closest("a").classList.add("active");
+    }
+
+    const addBtn = document.getElementById("addProductBtn");
+
+    if (addBtn) {
+        addBtn.style.display = (section === "products") ? "inline-flex" : "none";
+    }
+}
+   
+  /* ---------- DASHBOARD STATS ---------- */
+  function renderStats(){
+    document.getElementById("statProducts").innerText = adminProducts.length;
+    document.getElementById("statOrders").innerText = adminOrders.length;
+    document.getElementById("statUsers").innerText = adminUsers.length;
+   const revenue = adminOrders.reduce(
+    (s,o)=>s + Number(o.totalAmount || o.total || 0),
+    0
+);
+    document.getElementById("statRevenue").innerText = "₹" + revenue.toLocaleString();
+    document.getElementById("recentOrdersBody").innerHTML = adminOrders.slice(0,5).map(o=>`
+      <td>#${o.orderCode || o.id}</td>
+      <td>${o.fullName || "Guest"}</td>
+      <td>₹${Number(o.totalAmount || o.total).toLocaleString()}</td>
+      <td><span class="status-pill ${{Pending:'status-pending',Shipped:'status-shipped',Delivered:'status-delivered',Cancelled:'status-cancelled'}[o.status]||'status-pending'}">${o.status}</span></td></tr>
+    `).join("");
+  }
+
+  /* ---------- PRODUCTS CRUD ---------- */
+  function renderProducts(){
+  document.getElementById("productsBody").innerHTML = adminProducts.map(p => {
+    const img = p.image || p.imageUrl || p.image_url;
+    const matchedCategory = adminCategories.find(c => c.id == p.categoryId);
+    const cat = p.categoryName || p.category || matchedCategory?.name || "No Category";
+
+    return `
+      <tr>
+        <td><img src="${img}" alt="${p.name}"></td>
+        <td>${p.name}</td>
+        <td>${cat}</td>
+        <td>₹${Number(p.price).toLocaleString()}</td>
+        <td>${p.rating} ★</td>
+        <td class="action-btns">
+          <button class="edit-btn" onclick="openProductModal(${p.id})"><i class="fa-solid fa-pen"></i></button>
+          <button class="del-btn" onclick="deleteProduct(${p.id})"><i class="fa-solid fa-trash"></i></button>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+  function populateCategoryOptions(){
+  document.getElementById("prodCategory").innerHTML =
+    adminCategories.map(c => `<option value="${c.name}">${c.name}</option>`).join("");
+}
+  function openProductModal(id){
+    populateCategoryOptions();
+    document.getElementById("productModal").classList.add("active");
+    if (id){
+      const p = adminProducts.find(x=>x.id===id);
+      document.getElementById("modalTitle").innerText = "Edit Product";
+      document.getElementById("prodId").value = p.id;
+      document.getElementById("prodName").value = p.name;
+      document.getElementById("prodCategory").value =
+      p.categoryName || p.category || adminCategories.find(c => c.id == p.categoryId)?.name || "";
+      document.getElementById("prodPrice").value = p.price;
+      document.getElementById("prodOldPrice").value = p.oldPrice || "";
+      document.getElementById("prodRating").value = p.rating || 4.5;
+      document.getElementById("prodImage").value =
+      p.imageUrl || p.image;
+    } else {
+      document.getElementById("modalTitle").innerText = "Add Product";
+      document.getElementById("productForm").reset();
+      document.getElementById("prodId").value = "";
+      document.getElementById("prodRating").value = 4.5;
+    }
+  }
+  function closeProductModal(){ document.getElementById("productModal").classList.remove("active"); }
+
+  document.getElementById("productForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+
+  const id = document.getElementById("prodId").value;
+  const categoryName = document.getElementById("prodCategory").value;
+  const category = adminCategories.find(c => c.name === categoryName);
+
+  if (!category) {
+    alert("Please select a category");
+    return;
+  }
+
+  const payload = {
+    name: document.getElementById("prodName").value,
+    categoryId: Number(category.id),
+    description: "",
+    price: Number(document.getElementById("prodPrice").value),
+    oldPrice: Number(document.getElementById("prodOldPrice").value) || null,
+    imageUrl: document.getElementById("prodImage").value,
+    rating: Number(document.getElementById("prodRating").value) || 4.5,
+    reviewsCount: 0,
+    stock: 50
+  };
+
+  if (id) {
+    await apiPut(`/products/${id}`, payload);
+    showToast("Product updated successfully");
+  } else {
+    await apiPost("/products", payload);
+    showToast("Product added successfully");
+  }
+
+  const liveProducts = await apiGet("/products", null);
+  if (liveProducts && liveProducts.length > 0) {
+    adminProducts = liveProducts;
+  }
+
+  closeProductModal();
+  renderProducts();
+  renderStats();
+});
+  async function deleteProduct(id){
+    if (!confirm("Delete this product?")) return;
+    await apiDelete(`/products/${id}`); // DELETE /api/products/{id}
+    adminProducts = adminProducts.filter(p=>p.id!==id);
+    renderProducts();
+    renderStats();
+    showToast("Product deleted");
+  }
+
+  /* ---------- ORDERS MANAGEMENT ---------- */
+  function renderAdminOrders(){
+    const STATUS_CLASS = { Pending:"status-pending", Shipped:"status-shipped", Delivered:"status-delivered", Cancelled:"status-cancelled" };
+    document.getElementById("adminOrdersBody").innerHTML = adminOrders.map((o,idx) => `
+      <tr>
+        <td>#${o.orderCode}</td>
+        <td>${new Date(o.createdAt).toLocaleDateString()}</td>
+        <td>${o.items ? o.items.length : 0}</td>
+        <td>₹${Number(o.totalAmount).toLocaleString()}</td>
+        <td><span class="status-pill ${STATUS_CLASS[o.status]||'status-pending'}">${o.status}</span></td>
+        <td>
+          <select onchange="updateOrderStatus(${idx}, this.value)">
+            ${["Pending","Shipped","Delivered","Cancelled"].map(s=>`<option ${s===o.status?'selected':''}>${s}</option>`).join("")}
+          </select>
+        </td>
+      </tr>
+    `).join("");
+  }
+  async function updateOrderStatus(idx, status){
+    adminOrders[idx].status = status;
+    await apiPut(`/orders/${adminOrders[idx].id}/status`, { status }); // PUT /api/orders/{id}/status
+    localStorage.setItem("novacart_orders", JSON.stringify(adminOrders));
+    renderAdminOrders();
+    renderStats();
+    showToast("Order status updated");
+  }
+
+  /* ---------- USERS MANAGEMENT ---------- */
+  function renderUsers(){
+    document.getElementById("usersBody").innerHTML = adminUsers.map(u => `
+      <tr>
+        <td>${u.id}</td><td>${u.name}</td><td>${u.email}</td><td>${u.phone}</td><td>${u.joined}</td>
+        <td class="action-btns">
+          <button class="del-btn" onclick="deleteUser(${u.id})"><i class="fa-solid fa-trash"></i></button>
+        </td>
+      </tr>
+    `).join("");
+  }
+  async function deleteUser(id){
+    if (!confirm("Remove this user?")) return;
+    await apiDelete(`/users/${id}`); // DELETE /api/users/{id}
+    adminUsers = adminUsers.filter(u=>u.id!==id);
+    renderUsers();
+    renderStats();
+    showToast("User removed");
+  }
+
+  /* ---------- INIT (try loading real data from backend) ---------- */
+  async function initAdmin(){
+    const liveCategories = await apiGet("/categories", null);
+    if (liveCategories && liveCategories.length > 0) adminCategories = liveCategories;
+    const liveProducts = await apiGet("/products", null);
+    if (liveProducts && liveProducts.length > 0) adminProducts = liveProducts;
+    const liveUsers = await apiGet("/users", null);
+    if (liveUsers && liveUsers.length > 0) adminUsers = liveUsers;
+    const liveOrders = await apiGet("/orders", null);
+    if (liveOrders && liveOrders.length > 0) adminOrders = liveOrders;
+    renderStats();
+    renderProducts();
+    renderAdminOrders();
+    renderUsers();
+  }
+  initAdmin();
+  document.getElementById("addProductBtn").style.display = "none";
+  document.getElementById("sectionTitle").innerText = "Admin Dashboard";
+</script>
+</body>
+</html>

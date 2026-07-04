@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout | NovaCart</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container nav-inner">
+    <a href="index.html" class="logo">Nova<span>Cart</span></a>
+    <ul class="nav-links"><li><a href="index.html">Home</a></li><li><a href="products.html">Shop</a></li><li><a href="cart.html">Cart</a></li></ul>
+    <div></div>
+    <div class="nav-icons"><a href="cart.html" class="icon-btn"><i class="fa-solid fa-bag-shopping"></i><span class="badge" id="cart-count">0</span></a></div>
+  </div>
+</nav>
+
+<div class="page-header"><h1>Checkout</h1><div class="breadcrumb"><a href="index.html">Home</a> / Cart / Checkout</div></div>
+
+<div class="container checkout-layout">
+  <div>
+    <div class="checkout-section glass">
+      <h3><i class="fa-solid fa-location-dot"></i> Shipping Address</h3>
+      <form id="checkoutForm">
+        <div class="form-row">
+          <div class="form-group"><label>Full Name</label><input type="text" id="fullName" required></div>
+          <div class="form-group"><label>Phone Number</label><input type="tel" id="phone" required></div>
+        </div>
+        <div class="form-group"><label>Address</label><input type="text" id="address" placeholder="House no, street, area" required></div>
+        <div class="form-row">
+          <div class="form-group"><label>City</label><input type="text" id="city" required></div>
+          <div class="form-group"><label>Pincode</label><input type="text" id="pincode" required></div>
+        </div>
+        <div class="form-group"><label>State</label><input type="text" id="state" required></div>
+      </form>
+    </div>
+
+    <div class="checkout-section glass">
+      <h3><i class="fa-solid fa-credit-card"></i> Payment Method</h3>
+      <label class="payment-option">
+        <input type="radio" name="payment" value="card" checked> <i class="fa-regular fa-credit-card"></i> Credit / Debit Card
+      </label>
+      <label class="payment-option">
+        <input type="radio" name="payment" value="upi"> <i class="fa-solid fa-mobile-screen"></i> UPI
+      </label>
+      <label class="payment-option">
+        <input type="radio" name="payment" value="cod"> <i class="fa-solid fa-money-bill-wave"></i> Cash on Delivery
+      </label>
+    </div>
+  </div>
+
+  <div class="summary-box glass" id="checkoutSummary"></div>
+</div>
+
+<footer class="footer"><div class="footer-bottom container">&copy; 2026 NovaCart. All rights reserved.</div></footer>
+<script src="js/script.js"></script>
+<script>
+async function renderSummary(){
+  const apiCart = await apiGet("/cart/1", []);
+
+  const cart = apiCart.map(item => ({
+    id: item.productId,
+    name: item.productName,
+    price: Number(item.price),
+    qty: item.quantity
+  }));
+
+  if (cart.length === 0){
+    window.location.href = "cart.html";
+    return;
+  }
+
+  const subtotal = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const shipping = subtotal > 2000 ? 0 : 99;
+  const tax = Math.round(subtotal * 0.05);
+  const total = subtotal + shipping + tax;
+
+  document.getElementById("checkoutSummary").innerHTML = `
+    <h3 style="color:var(--gold);margin-bottom:20px;">Order Summary</h3>
+    ${cart.map(i => `
+      <div class="summary-row">
+        <span>${i.name} x${i.qty}</span>
+        <span>₹${(i.price*i.qty).toLocaleString()}</span>
+      </div>
+    `).join("")}
+    <div class="summary-row"><span>Subtotal</span><span>₹${subtotal.toLocaleString()}</span></div>
+    <div class="summary-row"><span>Shipping</span><span>${shipping===0?'FREE':'₹'+shipping}</span></div>
+    <div class="summary-row"><span>Tax</span><span>₹${tax.toLocaleString()}</span></div>
+    <div class="summary-row total"><span>Total</span><span>₹${total.toLocaleString()}</span></div>
+    <button class="gradient-btn" style="width:100%;margin-top:20px;" onclick="placeOrder(${total})">
+      Place Order <i class="fa-solid fa-lock"></i>
+    </button>
+  `;
+}
+
+async function placeOrder(total){
+  alert("Place order function started");
+  const form = document.getElementById("checkoutForm");
+
+  if (!form.checkValidity()){
+    form.reportValidity();
+    return;
+  }
+
+  const apiCart = await apiGet("/cart/1", []);
+
+  const cartItems = apiCart.map(item => ({
+  productId: item.productId || item.id,
+  name: item.productName || item.name,
+  price: Number(item.price),
+  qty: item.quantity || item.qty
+}));  
+
+  const orderPayload = {
+    userId: null,
+    total: total,
+    paymentMethod: document.querySelector('input[name="payment"]:checked').value,
+    items: cartItems,
+    address: {
+      fullName: document.getElementById("fullName").value,
+      phone: document.getElementById("phone").value,
+      address: document.getElementById("address").value,
+      city: document.getElementById("city").value,
+      pincode: document.getElementById("pincode").value,
+      state: document.getElementById("state").value
+    }
+  };
+
+  const result = await apiPost("/orders", orderPayload);
+  console.log("ORDER RESULT:", result);
+  alert(JSON.stringify(result));
+
+  const orderId = result.orderId || "NC" + Date.now().toString().slice(-8);
+
+  window.location.href = `order-success.html?orderId=${orderId}`;
+}
+// Payment Method Active Effect
+document.querySelectorAll('input[name="payment"]').forEach(radio => {
+
+    radio.addEventListener("change", function () {
+
+        document.querySelectorAll(".payment-option")
+            .forEach(option => option.classList.remove("active"));
+
+        this.closest(".payment-option").classList.add("active");
+
+    });
+
+});
+
+// Default Selected
+document.querySelector('input[name="payment"]:checked')
+    ?.closest(".payment-option")
+    ?.classList.add("active");
+
+renderSummary();
+</script>
+</body>
+</html>

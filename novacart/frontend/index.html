@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NovaCart | Premium Shopping Experience</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<!-- ============ NAVBAR ============ -->
+<nav class="navbar">
+  <div class="container nav-inner">
+    <a href="index.html" class="logo">Nova<span>Cart</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Shop</a></li>
+      <li><a href="wishlist.html">Wishlist</a></li>
+      <li><a href="orders.html">My Orders</a></li>
+      <li><a href="admin.html">Admin</a></li>
+    </ul>
+    <div class="search-box">
+      <input type="text" placeholder="Search for products...">
+      <button><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+    <div class="nav-icons">
+  <a href="wishlist.html" class="icon-btn nav-label">
+    <i class="fa-regular fa-heart"></i>
+    <span>Wishlist</span>
+    <b class="badge" id="wishlist-count">0</b>
+  </a>
+
+  <a href="cart.html" class="icon-btn nav-label">
+    <i class="fa-solid fa-cart-shopping"></i>
+    <span>Cart</span>
+    <b class="badge" id="cart-count">0</b>
+  </a>
+
+  <a href="login.html" class="icon-btn nav-label" id="nav-login">
+    <i class="fa-regular fa-user"></i>
+    <span>Login</span>
+  </a>
+</div>
+    <button class="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+  </div>
+</nav>
+<div class="drawer-overlay"></div>
+<div class="mobile-drawer">
+  <a href="index.html">Home</a>
+  <a href="products.html">Shop</a>
+  <a href="wishlist.html">Wishlist</a>
+  <a href="orders.html">My Orders</a>
+  <a href="cart.html">Cart</a>
+  <a href="login.html">Login</a>
+  <a href="admin.html">Admin</a>
+</div>
+
+<!-- ============ HERO ============ -->
+<section class="hero premium-home">
+  <div class="container hero-inner">
+    <div class="hero-text">
+      <span class="tag">New Collection 2026</span>
+
+      <h1>Elevate Your<br>Shopping <span>Experience</span></h1>
+
+      <p>
+        Discover premium quality products at unbeatable prices
+      </p>
+
+      <div class="hero-btns">
+        <a href="products.html" class="gradient-btn">Shop Now</a>
+        <a href="products.html" class="outline-btn">Explore Deals</a>
+      </div>
+    </div>
+
+    <div class="hero-visual premium-visual">
+   <img src="images/hero-banner.png" alt="NovaCart Hero Banner">
+    </div>
+  </div>
+</section>
+
+<!-- ============ CATEGORIES ============ -->
+<section class="section" id="categories">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">Shop By Category</h2>
+        <p class="section-sub">Browse our handpicked collections across every lifestyle</p>
+      </div>
+      <a href="products.html" class="view-all">View All <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+    <div class="cat-grid" id="category-grid"></div>
+  </div>
+</section>
+
+<!-- ============ FEATURED PRODUCTS ============ -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">Trending Products</h2>
+        <p class="section-sub">Hand-picked items our customers love the most</p>
+      </div>
+      <a href="products.html" class="view-all">View All <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+    <div class="product-grid" id="featured-grid"></div>
+  </div>
+</section>
+
+<!-- ============ PROMO BANNER ============ -->
+<section class="container">
+  <div class="promo-banner glass fade-up">
+    <h2>Get <span>20% OFF</span> On Your First Order</h2>
+    <p>Sign up today and unlock exclusive deals reserved for NovaCart members.</p>
+    <a href="register.html" class="gradient-btn">Create Account</a>
+  </div>
+</section>
+
+<!-- ============ NEW ARRIVALS ============ -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">New Arrivals</h2>
+        <p class="section-sub">Fresh drops, just landed this week</p>
+      </div>
+      <a href="products.html" class="view-all">View All <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+    <div class="product-grid" id="new-grid"></div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="container footer-grid">
+    <div>
+      <a href="index.html" class="logo">Nova<span>Cart</span></a>
+      <p style="margin-top:14px;">Your destination for premium shopping — curated quality, unbeatable style, delivered to your door.</p>
+      <div class="social-row">
+        <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+        <a href="#"><i class="fa-brands fa-youtube"></i></a>
+      </div>
+    </div>
+    <div>
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="products.html">All Products</a></li>
+        <li><a href="products.html">Fashion</a></li>
+        <li><a href="products.html">Electronics</a></li>
+        <li><a href="products.html">Gaming</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Account</h4>
+      <ul>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="register.html">Register</a></li>
+        <li><a href="orders.html">My Orders</a></li>
+        <li><a href="wishlist.html">Wishlist</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <p><i class="fa-solid fa-location-dot"></i> Mumbai, India</p>
+      <p><i class="fa-solid fa-phone"></i> +91 98765 43210</p>
+      <p><i class="fa-solid fa-envelope"></i> support@novacart.com</p>
+    </div>
+  </div>
+  <div class="footer-credit">
+    <p>Developed with <span class="heart">❤</span> by <strong>Gokul G</strong></p>
+    <p>© 2026 NovaCart · All Rights Reserved</p>
+</div>
+</footer>
+
+<script src="js/script.js"></script>
+<script>
+  function renderCategories(){
+    const grid = document.getElementById("category-grid");
+    grid.innerHTML = CATEGORIES.map(c => `
+      <a href="products.html?category=${encodeURIComponent(c.name)}" class="cat-card fade-up">
+        <img src="${c.image}" alt="${c.name}">
+        <div class="cat-label">${c.name}<span>${c.count}</span></div>
+      </a>
+    `).join("");
+  }
+
+  function fixProduct(p){
+  return {
+    ...p,
+    image: p.image || p.imageUrl || p.image_url,
+    category: p.category || p.categoryName,
+    reviews: p.reviews || p.reviewsCount || 0,
+    rating: p.rating || 4.5,
+    oldPrice: p.oldPrice || null
+  };
+}
+  async function renderFeatured(){
+  const products = await apiGet("/products", []);
+
+  document.getElementById("featured-grid").innerHTML =
+    products.slice(0,8).map(fixProduct).map(productCardHTML).join("");
+}
+ async function renderNewArrivals(){
+  const products = await apiGet("/products", []);
+
+  document.getElementById("new-grid").innerHTML =
+    products.slice(4,8).map(fixProduct).map(productCardHTML).join("");
+}
+renderCategories();
+renderFeatured();
+renderNewArrivals();
+</script>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Details | NovaCart</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container nav-inner">
+    <a href="index.html" class="logo">Nova<span>Cart</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Shop</a></li>
+      <li><a href="wishlist.html">Wishlist</a></li>
+      <li><a href="orders.html">My Orders</a></li>
+      <li><a href="admin.html">Admin</a></li>
+    </ul>
+    <div class="search-box">
+      <input type="text" placeholder="Search for products...">
+      <button><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+    <div class="nav-icons">
+      <a href="wishlist.html" class="icon-btn"><i class="fa-regular fa-heart"></i><span class="badge" id="wishlist-count">0</span></a>
+      <a href="cart.html" class="icon-btn"><i class="fa-solid fa-bag-shopping"></i><span class="badge" id="cart-count">0</span></a>
+      <a href="login.html" class="icon-btn" id="nav-login"><i class="fa-regular fa-user"></i></a>
+    </div>
+    <button class="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+  </div>
+</nav>
+<div class="drawer-overlay"></div>
+<div class="mobile-drawer">
+  <a href="index.html">Home</a><a href="products.html">Shop</a><a href="wishlist.html">Wishlist</a>
+  <a href="orders.html">My Orders</a><a href="cart.html">Cart</a><a href="login.html">Login</a><a href="admin.html">Admin</a>
+</div>
+
+<div class="page-header">
+  <h1 id="breadcrumbName">Product Details</h1>
+  <div class="breadcrumb"><a href="index.html">Home</a> / <a href="products.html">Shop</a> / <span id="breadcrumbCat"></span></div>
+</div>
+
+<div class="container pd-layout" id="pdContainer"></div>
+
+<div class="container pd-tabs">
+  <div class="tab-btns">
+    <button class="active" onclick="switchTab('desc')">Description</button>
+    <button onclick="switchTab('specs')">Specifications</button>
+    <button onclick="switchTab('reviews')">Reviews</button>
+  </div>
+  <div id="tab-desc" class="glass" style="padding:28px;">
+    <p id="fullDesc" style="color:var(--grey-light);line-height:1.9;"></p>
+  </div>
+  <div id="tab-specs" class="glass" style="padding:28px;display:none;">
+    <p style="color:var(--grey-light);">Brand: NovaCart Premium &nbsp;|&nbsp; Warranty: 1 Year &nbsp;|&nbsp; Free Shipping &nbsp;|&nbsp; 7-Day Easy Returns</p>
+  </div>
+  <div id="tab-reviews" class="glass" style="padding:28px;display:none;">
+    <p style="color:var(--grey-light);">⭐⭐⭐⭐⭐ "Excellent quality, exactly as described. Fast delivery!" — Verified Buyer</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <h2 class="section-title">You May Also Like</h2>
+    <div class="product-grid" id="relatedGrid" style="margin-top:24px;"></div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-bottom container">&copy; 2026 NovaCart. All rights reserved.</div>
+</footer>
+
+<script src="js/script.js"></script>
+<script>
+ const productId = new URLSearchParams(window.location.search).get("id");
+
+let product = null;
+let qty = 1;
+
+async function loadProduct(){
+
+    product = await apiGet(`/products/${productId}`);
+
+    product = {
+        ...product,
+        image: product.image || product.imageUrl,
+        category: product.category || product.categoryName,
+        reviews: product.reviews || product.reviewsCount || 0,
+        oldPrice: product.oldPrice || null
+    };
+
+    document.title = product.name + " | NovaCart";
+
+    document.getElementById("breadcrumbName").innerText = product.name;
+
+    document.getElementById("breadcrumbCat").innerText = product.category;
+
+    document.getElementById("fullDesc").innerText =
+    `Experience premium quality with the ${product.name}. Carefully crafted and curated for those who value style, durability, and performance. Part of our exclusive ${product.category} collection.`;
+
+    renderPD();
+
+    renderRelated();
+}
+  function renderPD(){
+    const wished = isInWishlist(product.id);
+    document.getElementById("pdContainer").innerHTML = `
+      <div class="pd-gallery fade-up visible">
+        <img id="mainImg" src="${product.image}" alt="${product.name}">
+        <div class="pd-thumbs">
+          <img src="${product.image}" class="active" onclick="document.getElementById('mainImg').src=this.src">
+          <img src="${product.image}" onclick="document.getElementById('mainImg').src=this.src">
+        </div>
+      </div>
+      <div class="pd-info fade-up visible">
+        <span class="product-cat">${product.category}</span>
+        <h1>${product.name}</h1>
+        <div class="product-rating">${renderStars(product.rating)} <span>(${product.reviews} reviews)</span></div>
+        <div class="pd-price">₹${product.price.toLocaleString()} ${product.oldPrice?`<span class="old" style="font-size:1.1rem;">₹${product.oldPrice.toLocaleString()}</span>`:""}</div>
+        <p class="pd-desc">Premium quality ${product.category.toLowerCase()} item, hand-selected for NovaCart's exclusive collection.</p>
+        <div class="pd-meta">
+          <span><i class="fa-solid fa-truck"></i> Free Delivery</span>
+          <span><i class="fa-solid fa-rotate-left"></i> 7-Day Returns</span>
+          <span><i class="fa-solid fa-shield-halved"></i> Secure Payment</span>
+        </div>
+        <div class="qty-box">
+          <button onclick="changeQty(-1)">-</button>
+          <span id="qtyVal">1</span>
+          <button onclick="changeQty(1)">+</button>
+        </div>
+        <div class="pd-actions">
+          <button class="gradient-btn" onclick="addToCart(product, qty); ">Add to Cart <i class="fa-solid fa-bag-shopping"></i></button>
+          <button class="outline-btn" id="wishBtn" onclick="handleWish()">
+            <i class="fa-${wished?'solid':'regular'} fa-heart"></i> ${wished?'In Wishlist':'Add to Wishlist'}
+          </button>
+        </div>
+      </div>
+    `;
+  }
+  function changeQty(d){
+    qty = Math.max(1, qty + d);
+    document.getElementById("qtyVal").innerText = qty;
+  }
+  function handleWish(){
+    const added = toggleWishlist(product);
+    const btn = document.getElementById("wishBtn");
+    btn.innerHTML = `<i class="fa-${added?'solid':'regular'} fa-heart"></i> ${added?'In Wishlist':'Add to Wishlist'}`;
+  }
+  function switchTab(tab){
+    ["desc","specs","reviews"].forEach(t=>{
+      document.getElementById(`tab-${t}`).style.display = t===tab ? "block":"none";
+    });
+    document.querySelectorAll(".tab-btns button").forEach(b=>b.classList.remove("active"));
+    event.target.classList.add("active");
+  }
+  async function renderRelated(){
+
+    const products = await apiGet("/products");
+
+    const list = products.map(p=>({
+        ...p,
+        image:p.image || p.imageUrl,
+        category:p.category || p.categoryName,
+        reviews:p.reviews || p.reviewsCount || 0,
+        oldPrice:p.oldPrice || null
+    }));
+
+    const related = list.filter(p =>
+        p.category === product.category &&
+        p.id !== product.id
+    );
+
+    document.getElementById("relatedGrid").innerHTML =
+        related.slice(0,4).map(productCardHTML).join("");
+}async function renderRelated(){
+
+    const products = await apiGet("/products");
+
+    const list = products.map(p=>({
+        ...p,
+        image:p.image || p.imageUrl,
+        category:p.category || p.categoryName,
+        reviews:p.reviews || p.reviewsCount || 0,
+        oldPrice:p.oldPrice || null
+    }));
+
+    const related = list.filter(p =>
+        p.category === product.category &&
+        p.id !== product.id
+    );
+
+    document.getElementById("relatedGrid").innerHTML =
+        related.slice(0,4).map(productCardHTML).join("");
+}
+  loadProduct();
+</script>
+</body>
+</html>

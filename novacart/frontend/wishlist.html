@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wishlist | NovaCart</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container nav-inner">
+    <a href="index.html" class="logo">Nova<span>Cart</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="products.html">Shop</a></li>
+      <li><a href="wishlist.html">Wishlist</a></li>
+      <li><a href="orders.html">My Orders</a></li>
+      <li><a href="admin.html">Admin</a></li>
+    </ul>
+    <div class="search-box"><input type="text" placeholder="Search for products..."><button><i class="fa-solid fa-magnifying-glass"></i></button></div>
+    <div class="nav-icons">
+      <a href="wishlist.html" class="icon-btn"><i class="fa-regular fa-heart"></i><span class="badge" id="wishlist-count">0</span></a>
+      <a href="cart.html" class="icon-btn"><i class="fa-solid fa-bag-shopping"></i><span class="badge" id="cart-count">0</span></a>
+      <a href="login.html" class="icon-btn" id="nav-login"><i class="fa-regular fa-user"></i></a>
+    </div>
+    <button class="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+  </div>
+</nav>
+<div class="drawer-overlay"></div>
+<div class="mobile-drawer">
+  <a href="index.html">Home</a><a href="products.html">Shop</a><a href="wishlist.html">Wishlist</a>
+  <a href="orders.html">My Orders</a><a href="cart.html">Cart</a><a href="login.html">Login</a><a href="admin.html">Admin</a>
+</div>
+
+<div class="page-header"><h1>My Wishlist</h1><div class="breadcrumb"><a href="index.html">Home</a> / Wishlist</div></div>
+
+<div class="container" style="padding:50px 0;">
+  <div class="wishlist-grid" id="wishlistGrid"></div>
+</div>
+
+<footer class="footer"><div class="footer-bottom container">&copy; 2026 NovaCart. All rights reserved.</div></footer>
+
+<script src="js/script.js"></script>
+<script>
+  function renderWishlist(){
+    const items = getWishlist();
+    const grid = document.getElementById("wishlistGrid");
+    if (items.length === 0){
+      grid.innerHTML = `
+        <div class="empty-state glass" style="grid-column:1/-1;">
+          <i class="fa-solid fa-heart-crack"></i>
+          <h3>Your wishlist is empty</h3>
+          <p>Save items you love for later.</p>
+          <a href="products.html" class="gradient-btn" style="margin-top:20px;display:inline-block;">Browse Products</a>
+        </div>`;
+      return;
+    }
+    grid.innerHTML = items.map(productCardHTML).join("");
+  }
+  // override wishlist click to re-render this page after removal
+  const origToggle = handleWishlistClick;
+  handleWishlistClick = function(id){
+    origToggle(id);
+    setTimeout(renderWishlist, 50);
+  };
+  renderWishlist();
+</script>
+</body>
+</html>
