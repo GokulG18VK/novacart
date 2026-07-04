@@ -7,7 +7,7 @@
 const API_BASE =
   window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
     ? "http://localhost:8080/api"
-    : "https://novacart-moz6.onrender.com/api";
+    : "https://novacart-backend-q0w1.onrender.com/api";
 /* ---------- DEMO PRODUCT DATA (fallback if backend is offline) ---------- */
 /* In production these come from GET /api/products (MySQL via JdbcTemplate) */
 const DEMO_PRODUCTS = [
